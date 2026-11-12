@@ -7,10 +7,10 @@ kino.pub. Показывает до 30 последних просмотренн
 
 ## Устройство
 
-- OAuth2 device-flow против `https://api.service-kp.com` (креденшелы —
-  публичные от open-source Kodi-клиента kino.pub: client_id `xbmc`; свои пара
-  выдаётся только через support@kino.pub). Refresh-токен хранится в
-  SharedPreferences приложения.
+- OAuth2 device-flow против `https://api.service-kp.com`. Креденшелы зашиты
+  дефолтом прямо в `Prefs.java` — публичные от open-source Kodi-клиента
+  (client_id `xbmc`); своя пара выдаётся только через support@kino.pub, её можно
+  подставить в том же файле. Refresh-токен хранится в SharedPreferences приложения.
 - `GET /v1/history` → записи публикуются в TvProvider как browsable-канал +
   preview-programs; deep-link `https://kinopub.tv/item/view/<id>` (именно
   `/item/view` — фильтры InfoActivity).
@@ -18,8 +18,6 @@ kino.pub. Показывает до 30 последних просмотренн
   добавлен невидимый `ForwardActivity`-трамплин, перенаправляющий ссылку в
   `com.kinopub` (`setPackage`).
 - Синхронизация: WorkManager, раз в 12 ч + `BootReceiver` после перезагрузки
-  (TvProvider на приставке теряет данные при ребуте — канал пересоздаётся).
-  Экран настройки: ввод client_id/secret, привязка по коду, ручной синк.
 
 ## Сборка
 

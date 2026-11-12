@@ -5,9 +5,16 @@ import android.content.SharedPreferences;
 
 public final class Prefs {
     private static final String NAME = "kinohist";
-    private static final String K_CLIENT_ID = "client_id";
-    private static final String K_CLIENT_SECRET = "client_secret";
-    private static final String K_API_HOST = "api_host";
+
+    /**
+     * Public OAuth credentials of the open-source Kodi client for kino.pub
+     * (quarckster/kodi.kino.pub) — the same defaults Lampa/AVReleases plugins
+     * use. A personal pair can only be obtained from support@kino.pub.
+     */
+    private static final String DEFAULT_CLIENT_ID = "xbmc";
+    private static final String DEFAULT_CLIENT_SECRET = "cgg3gtifu46urtfp2zp1nqtba0k2ezxh";
+    private static final String DEFAULT_API_HOST = "api.service-kp.com";
+
     private static final String K_ACCESS_TOKEN = "access_token";
     private static final String K_REFRESH_TOKEN = "refresh_token";
     private static final String K_TOKEN_EXPIRES = "token_expires";
@@ -20,19 +27,9 @@ public final class Prefs {
         return c.getSharedPreferences(NAME, Context.MODE_PRIVATE);
     }
 
-    public static String clientId(Context c) { return sp(c).getString(K_CLIENT_ID, ""); }
-    public static String clientSecret(Context c) { return sp(c).getString(K_CLIENT_SECRET, ""); }
-    public static String apiHost(Context c) {
-        return sp(c).getString(K_API_HOST, "api.service-kp.com");
-    }
-
-    public static void setCredentials(Context c, String id, String secret, String host) {
-        sp(c).edit()
-                .putString(K_CLIENT_ID, id.trim())
-                .putString(K_CLIENT_SECRET, secret.trim())
-                .putString(K_API_HOST, host.trim().isEmpty() ? "api.service-kp.com" : host.trim())
-                .apply();
-    }
+    public static String clientId(Context c) { return DEFAULT_CLIENT_ID; }
+    public static String clientSecret(Context c) { return DEFAULT_CLIENT_SECRET; }
+    public static String apiHost(Context c) { return DEFAULT_API_HOST; }
 
     public static String accessToken(Context c) { return sp(c).getString(K_ACCESS_TOKEN, ""); }
     public static String refreshToken(Context c) { return sp(c).getString(K_REFRESH_TOKEN, ""); }

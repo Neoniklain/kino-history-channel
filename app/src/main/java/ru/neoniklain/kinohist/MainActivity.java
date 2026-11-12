@@ -5,13 +5,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -33,9 +31,8 @@ public class MainActivity extends Activity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private volatile boolean polling;
 
-    private EditText etClientId, etClientSecret, etHost;
     private TextView tvStatus, tvCode;
-    private Button btnSave, btnPair, btnSync;
+    private Button btnPair, btnSync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,30 +61,7 @@ public class MainActivity extends Activity {
         TextView title = tv("История kino.pub", 28, true);
         root.addView(title);
 
-        tvStatus = tv("", 16, false);
-        root.addView(tvStatus);
-
-        root.addView(tv("Client ID (профиль kino.pub → API):", 16, true));
-        etClientId = edit(Prefs.clientId(this));
-        root.addView(etClientId);
-
-        root.addView(tv("Client Secret:", 16, true));
-        etClientSecret = edit(Prefs.clientSecret(this));
-        root.addView(etClientSecret);
-
-        root.addView(tv("API-хост (обычно не менять):", 16, true));
-        etHost = edit(Prefs.apiHost(this));
-        root.addView(etHost);
-
-        btnSave = btn("Сохранить", v -> {
-            Prefs.setCredentials(this,
-                    etClientId.getText().toString(),
-                    etClientSecret.getText().toString(),
-                    etHost.getText().toString());
-            toast("Сохранено");
-            refreshStatus();
-        });
-        root.addView(btnSave);
+        root.addView(tvStatus = tv("", 16, false));
 
         btnPair = btn("1. Получить код привязки", v -> startPairing());
         root.addView(btnPair);
@@ -114,14 +88,6 @@ public class MainActivity extends Activity {
     }
 
     private void startPairing() {
-        Prefs.setCredentials(this,
-                etClientId.getText().toString(),
-                etClientSecret.getText().toString(),
-                etHost.getText().toString());
-        if (Prefs.clientId(this).isEmpty() || Prefs.clientSecret(this).isEmpty()) {
-            toast("Сначала введите Client ID и Secret");
-            return;
-        }
         setButtons(false);
         tvCode.setText("Запрос кода…");
         new Thread(() -> {
@@ -189,7 +155,6 @@ public class MainActivity extends Activity {
     private void setButtons(boolean enabled) {
         btnPair.setEnabled(enabled);
         btnSync.setEnabled(enabled);
-        btnSave.setEnabled(enabled);
     }
 
     private TextView tv(String text, int sp, boolean bold) {
@@ -200,17 +165,6 @@ public class MainActivity extends Activity {
         if (bold) v.setTypeface(null, android.graphics.Typeface.BOLD);
         v.setPadding(0, dp(10), 0, dp(4));
         return v;
-    }
-
-    private EditText edit(String value) {
-        EditText e = new EditText(this);
-        e.setText(value);
-        e.setTextColor(Color.WHITE);
-        e.setHintTextColor(Color.GRAY);
-        e.setSingleLine(true);
-        e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        return e;
     }
 
     private Button btn(String label, View.OnClickListener l) {
