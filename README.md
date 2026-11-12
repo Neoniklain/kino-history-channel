@@ -1,37 +1,54 @@
-# История kino.pub — канал для главного экрана ТВ
+# История kino.pub — канал для главного экрана Android TV
 
-Мини-приложение Android TV (Mecool KM9 Pro, Projectivy Launcher): публикует
-канал «История kino.pub» на главном экране с историей просмотров из API
-kino.pub. Показывает до 30 последних просмотренных тайтлов с постерами;
-клик открывает карточку тайтла в приложении kino.pub (`com.kinopub`).
+Мини-приложение: публикует на домашнем экране телевизора канал «История
+kino.pub» — до 30 последних просмотренных тайтлов из API kino.pub с постерами.
+Клик по тайтлу открывает его карточку в официальном приложении kino.pub
+(`com.kinopub`), просмотр остаётся там. Работает с лаунчерами, которые умеют
+показывать каналы Android TV (проверено на Projectivy Launcher).
+
+## Установка
+
+1. Установить APK из [релизов](../../releases).
+2. Открыть «История kino.pub» в списке приложений → «Привязать устройство».
+3. Ввести показанный код на https://kino.watch/device под своим аккаунтом.
+
+Дальше всё само: синхронизация раз в 12 часов и после перезагрузки устройства.
+Строку канала на главный экран добавляет лаунчер (в Projectivy: Настройки →
+Изменить каналы).
 
 ## Устройство
 
-- OAuth2 device-flow против `https://api.service-kp.com`. Креденшелы зашиты
-  дефолтом прямо в `Prefs.java` — публичные от open-source Kodi-клиента
-  (client_id `xbmc`); своя пара выдаётся только через support@kino.pub, её можно
-  подставить в том же файле. Refresh-токен хранится в SharedPreferences приложения.
+- Авторизация — OAuth2 device flow против `https://api.service-kp.com`.
+  Клиентские креденшелы зашиты дефолтом в `Prefs.java` — это публичная пара
+  open-source Kodi-клиента kino.pub; свою пару можно получить у
+  support@kino.pub и подставить в том же файле. Refresh-токен хранится только
+  в SharedPreferences на устройстве.
 - `GET /v1/history` → записи публикуются в TvProvider как browsable-канал +
-  preview-programs; deep-link `https://kinopub.tv/item/view/<id>` (именно
-  `/item/view` — фильтры InfoActivity).
-- Projectivy запускает клики по каналу в пакете владельца канала, поэтому
-  добавлен невидимый `ForwardActivity`-трамплин, перенаправляющий ссылку в
-  `com.kinopub` (`setPackage`).
-- Синхронизация: WorkManager, раз в 12 ч + `BootReceiver` после перезагрузки
+  preview-programs. Deep-link в приложение kino.pub строго вида
+  `https://kinopub.tv/item/view/<id>` (другие пути ссылки резолвятся, но
+  активность kino.pub их не принимает).
+- Projectivy (и потенциально другие лаунчеры) запускают клик по каналу в
+  пакете владельца канала, поэтому в приложении есть невидимый
+  `ForwardActivity`-трамплин, который перенаправляет ссылку в `com.kinopub`.
+- Синхронизация — WorkManager (раз в 12 ч + `BootReceiver` после загрузки):
+  TvProvider на ТВ-приставках теряет данные при ребуте, канал при этом
+  пересоздаётся автоматически.
 
 ## Сборка
 
-Тулчейн: JDK 17 (`C:\Program Files\Microsoft\jdk-17.0.21.21-hotspot`),
-Android SDK (`C:\Android\Sdk`, platform-34, build-tools 34.0.0),
-Gradle 8.9 (`C:\gradle\gradle-8.9`).
+Стандартный тулчейн: JDK 17+, Android SDK (platforms;android-34,
+build-tools;34.0.0), Gradle 8.9+.
 
 ```bash
-export JAVA_HOME="/c/Program Files/Microsoft/jdk-17.0.21.21-hotspot"
-export ANDROID_HOME="C:\\Android\\Sdk"
-export PATH="$JAVA_HOME/bin:/c/gradle/gradle-8.9/bin:$PATH"
-gradle --no-daemon assembleDebug
-# APK: app/build/outputs/apk/debug/app-debug.apk
+export JAVA_HOME=<путь к JDK 17>
+export ANDROID_HOME=<путь к Android SDK>
+gradle --no-daemon assembleRelease
+# APK: app/build/outputs/apk/release/app-release.apk
 ```
 
-Установка: `adb -s 192.168.1.145:5555 install -r app/build/outputs/apk/debug/app-debug.apk`
-(пакет с суффиксом: `ru.neoniklain.kinohist.debug`).
+Установка на устройство по сети (предварительно включить отладку по сети):
+
+```bash
+adb connect <IP-адрес устройства>:5555
+adb install -r app/build/outputs/apk/release/app-release.apk
+```
