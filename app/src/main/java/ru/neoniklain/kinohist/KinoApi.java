@@ -156,6 +156,14 @@ public final class KinoApi {
         return history;
     }
 
+    /** Profile: {username, subscription:{days}}. */
+    public JSONObject fetchUser() throws ApiException {
+        JSONObject obj = getJson(base() + "v1/user", accessToken());
+        JSONObject user = obj.optJSONObject("user");
+        if (user == null) throw new ApiException("no user field");
+        return user;
+    }
+
     private static String enc(String s) {
         try {
             return java.net.URLEncoder.encode(s, "UTF-8");

@@ -144,24 +144,31 @@ public final class ChannelSync {
         }
     }
 
-    /** Simple clock glyph as the channel logo, drawn at runtime (no assets). */
+    /** Channel logo: violet gradient tile with a white clock glyph, drawn at runtime. */
     private static Bitmap makeLogo(Context ctx) {
-        int size = 96;
         float d = ctx.getResources().getDisplayMetrics().density;
-        int px = (int) (size * d);
+        int px = (int) (96 * d);
         Bitmap bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
-        Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bg.setColor(Color.rgb(0x1B, 0x1B, 0x1B));
-        c.drawCircle(px / 2f, px / 2f, px / 2f, bg);
+
+        android.graphics.LinearGradient grad = new android.graphics.LinearGradient(
+                0, 0, px, px,
+                Color.rgb(0x7B, 0x3F, 0xF2), Color.rgb(0xA5, 0x5E, 0xFF),
+                android.graphics.Shader.TileMode.CLAMP);
+        Paint tile = new Paint(Paint.ANTI_ALIAS_FLAG);
+        tile.setShader(grad);
+        float r = px * 0.22f;
+        c.drawRoundRect(new android.graphics.RectF(0, 0, px, px), r, r, tile);
+
         Paint fg = new Paint(Paint.ANTI_ALIAS_FLAG);
         fg.setColor(Color.WHITE);
         fg.setStyle(Paint.Style.STROKE);
         fg.setStrokeWidth(px * 0.07f);
-        c.drawCircle(px / 2f, px / 2f, px * 0.32f, fg);
+        float cx = px / 2f, cy = px / 2f, ring = px * 0.30f;
+        c.drawCircle(cx, cy, ring, fg);
         fg.setStrokeCap(Paint.Cap.ROUND);
-        c.drawLine(px / 2f, px / 2f, px / 2f, px * 0.32f, fg);
-        c.drawLine(px / 2f, px / 2f, px * 0.68f, px / 2f, fg);
+        c.drawLine(cx, cy, cx, cy - ring * 0.55f, fg);
+        c.drawLine(cx, cy, cx + ring * 0.55f, cy, fg);
         return bmp;
     }
 }
