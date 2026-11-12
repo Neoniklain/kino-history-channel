@@ -1,54 +1,56 @@
-# История kino.pub — канал для главного экрана Android TV
+# kino.pub Watch History — home screen channel for Android TV
 
-Мини-приложение: публикует на домашнем экране телевизора канал «История
-kino.pub» — до 30 последних просмотренных тайтлов из API kino.pub с постерами.
-Клик по тайтлу открывает его карточку в официальном приложении kino.pub
-(`com.kinopub`), просмотр остаётся там. Работает с лаунчерами, которые умеют
-показывать каналы Android TV (проверено на Projectivy Launcher).
+**[Русский](README.ru.md)**
 
-## Установка
+A mini app that publishes a "kino.pub History" channel on the TV home screen:
+up to 30 most recently watched titles from the kino.pub API, with posters.
+Clicking a title opens its page in the official kino.pub app (`com.kinopub`) —
+playback stays there. Works with launchers that render Android TV channels
+(verified with Projectivy Launcher).
 
-1. Установить APK из [релизов](../../releases).
-2. Открыть «История kino.pub» в списке приложений → «Привязать устройство».
-3. Ввести показанный код на https://kino.watch/device под своим аккаунтом.
+## Installation
 
-Дальше всё само: синхронизация раз в 12 часов и после перезагрузки устройства.
-Строку канала на главный экран добавляет лаунчер (в Projectivy: Настройки →
-Изменить каналы).
+1. Install the APK from the [releases page](../../releases).
+2. Open "История kino.pub" in the app list → "Привязать устройство" (Pair device).
+3. Enter the shown code at https://kino.watch/device while logged into your account.
 
-## Устройство
+That's it: the channel syncs every 12 hours and after device reboot.
+Add the row to the home screen via your launcher (in Projectivy: Settings →
+Edit channels).
 
-- Авторизация — OAuth2 device flow против `https://api.service-kp.com`.
-  Клиентские креденшелы зашиты дефолтом в `Prefs.java` — это публичная пара
-  open-source Kodi-клиента kino.pub; свою пару можно получить у
-  support@kino.pub и подставить в том же файле. Refresh-токен хранится только
-  в SharedPreferences на устройстве.
-- `GET /v1/history` → записи публикуются в TvProvider как browsable-канал +
-  preview-programs. Deep-link в приложение kino.pub строго вида
-  `https://kinopub.tv/item/view/<id>` (другие пути ссылки резолвятся, но
-  активность kino.pub их не принимает).
-- Projectivy (и потенциально другие лаунчеры) запускают клик по каналу в
-  пакете владельца канала, поэтому в приложении есть невидимый
-  `ForwardActivity`-трамплин, который перенаправляет ссылку в `com.kinopub`.
-- Синхронизация — WorkManager (раз в 12 ч + `BootReceiver` после загрузки):
-  TvProvider на ТВ-приставках теряет данные при ребуте, канал при этом
-  пересоздаётся автоматически.
+## How it works
 
-## Сборка
+- Auth: OAuth2 device flow against `https://api.service-kp.com`. Client
+  credentials are embedded in `Prefs.java` by default — this is the public
+  pair from the open-source Kodi client for kino.pub; you can request your own
+  from support@kino.pub and put it in the same file. The refresh token lives
+  only in the app's SharedPreferences on the device.
+- `GET /v1/history` → entries are published to TvProvider as a browsable
+  channel + preview programs. The deep link into the kino.pub app must be
+  exactly `https://kinopub.tv/item/view/<id>` (other URL paths resolve, but
+  the kino.pub activity silently drops them).
+- Projectivy (and potentially other launchers) fire channel item clicks inside
+  the channel owner's package, so the app ships an invisible `ForwardActivity`
+  trampoline that re-dispatches the link into `com.kinopub`.
+- Sync runs via WorkManager (every 12 h + a `BootReceiver` after boot):
+  TvProvider on TV boxes loses its data on reboot, and the channel is then
+  recreated automatically.
 
-Стандартный тулчейн: JDK 17+, Android SDK (platforms;android-34,
+## Building
+
+Standard toolchain: JDK 17+, Android SDK (platforms;android-34,
 build-tools;34.0.0), Gradle 8.9+.
 
 ```bash
-export JAVA_HOME=<путь к JDK 17>
-export ANDROID_HOME=<путь к Android SDK>
+export JAVA_HOME=<path to JDK 17>
+export ANDROID_HOME=<path to Android SDK>
 gradle --no-daemon assembleRelease
 # APK: app/build/outputs/apk/release/app-release.apk
 ```
 
-Установка на устройство по сети (предварительно включить отладку по сети):
+Install over the network (enable network debugging on the device first):
 
 ```bash
-adb connect <IP-адрес устройства>:5555
+adb connect <device IP>:5555
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
