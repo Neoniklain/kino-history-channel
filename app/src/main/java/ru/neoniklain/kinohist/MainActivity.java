@@ -320,6 +320,7 @@ public class MainActivity extends Activity {
 
     private void showCode(String text) {
         codeCard.setVisibility(View.VISIBLE);
+        tvCode.setVisibility(View.VISIBLE);
         tvCode.setText(text);
     }
 

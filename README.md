@@ -4,9 +4,12 @@
 
 A mini app that publishes a "kino.pub History" channel on the TV home screen:
 up to 30 most recently watched titles from the kino.pub API, with posters.
-Clicking a title opens its page in the official kino.pub app (`com.kinopub`) —
-playback stays there. Works with launchers that render Android TV channels
-(verified with Projectivy Launcher).
+Clicking a title opens its page in a kino.pub-family player app — the official
+client (`com.kinopub`) or the rebranded `watch.kino` (kino.watch): the
+`ForwardActivity` trampoline probes both packages and the known link hosts
+(`kinopub.tv`, `kino.pub`, `kino.watch`), playback stays in that app. Works
+with launchers that render Android TV channels (verified with Projectivy
+Launcher).
 
 ## Installation
 
@@ -31,7 +34,9 @@ Edit channels).
   the kino.pub activity silently drops them).
 - Projectivy (and potentially other launchers) fire channel item clicks inside
   the channel owner's package, so the app ships an invisible `ForwardActivity`
-  trampoline that re-dispatches the link into `com.kinopub`.
+  trampoline that re-dispatches the link into whichever player is installed
+  (`com.kinopub` or `watch.kino`), trying the known hosts
+  (`kinopub.tv` / `kino.pub` / `kino.watch`) until one resolves.
 - Sync runs via WorkManager (every 12 h + a `BootReceiver` after boot):
   TvProvider on TV boxes loses its data on reboot, and the channel is then
   recreated automatically.
